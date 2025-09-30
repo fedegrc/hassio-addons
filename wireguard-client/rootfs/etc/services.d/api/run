@@ -1,0 +1,65 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Community Add-on: WireGuard Client
+# Simple HTTP API for WireGuard client status.
+# Provides connection status to the server.
+# ==============================================================================
+declare connection_status
+declare endpoint
+declare json
+declare latest_handshake
+declare line
+declare server_info
+declare transfer_rx
+declare transfer_tx
+declare public_key
+
+while true; do
+    # Initialize default values
+    connection_status="disconnected"
+    server_info="{}"
+    
+    # Get information from wg for the client interface
+    while IFS=$'\t' read -r -a line; do
+        if [[ "${#line[@]}" -gt 6 ]]; then
+            endpoint="${line[3]}"
+            latest_handshake="${line[5]}"
+            public_key="${line[1]}"
+            transfer_rx="${line[6]}"
+            transfer_tx="${line[7]}"
+            
+            # Check if this is our server peer (should only be one)
+            if [[ -n "${endpoint}" && "${endpoint}" != "(none)" ]]; then
+                connection_status="connected"
+                
+                # Calculate time since last handshake
+                current_time=$(date +%s)
+                if [[ "${latest_handshake}" != "0" ]]; then
+                    handshake_age=$((current_time - latest_handshake))
+                    if [[ ${handshake_age} -gt 180 ]]; then
+                        connection_status="stale"
+                    fi
+                else
+                    connection_status="never_connected"
+                fi
+                
+                server_info=$(bashio::var.json \
+                    'public_key' "${public_key}" \
+                    'endpoint' "${endpoint}" \
+                    'latest_handshake' "^${latest_handshake}" \
+                    'handshake_age' "^${handshake_age:-0}" \
+                    'transfer_rx' "^${transfer_rx}" \
+                    'transfer_tx' "^${transfer_tx}")
+                break
+            fi
+        fi
+    done <<< "$(wg show all dump)"
+    
+    # Build final json response with client status
+    json=$(bashio::var.json \
+        'status' "${connection_status}" \
+        'server' "^${server_info}")
+    
+    echo -e "HTTP/1.1 200 OK\r\nContent-type: application/json\r\n\r\n${json}" \
+        | nc -l -p 80 > /dev/null
+done

@@ -1,0 +1,66 @@
+---
+name: WireGuard Client
+version: "0.24"
+slug: wireguard-client
+description: Fast, modern, secure VPN tunnel (client mode)
+url: https://gitlab.com/fedegrc/hassio-addon-wireguard-client
+arch:
+  - aarch64
+  - amd64
+  - armv7
+init: false
+ports:
+  80/tcp: null
+ports_description:
+  80/tcp: WireGuard client status API
+hassio_api: true
+privileged:
+  - NET_ADMIN
+devices:
+  - /dev/net/tun
+map:
+  - ssl:rw
+options:
+  client:
+    addresses:
+      - 10.0.0.2/24
+    dns: []
+    interface: wg0
+    fwmark: ""
+    table: ""
+    pre_up: ""
+    pre_down: ""
+    post_up: ""
+    post_down: ""
+    mtu: 1420
+  server:
+    public_key: ""
+    endpoint: "vpn.example.com:51820"
+    allowed_ips:
+      - 0.0.0.0/0
+    persistent_keep_alive: 25
+    pre_shared_key: ""
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  client:
+    private_key: password
+    addresses:
+      - str
+    dns:
+      - str
+    interface: match(^wg([0-9])+$)?
+    fwmark: str?
+    table: str?
+    pre_up: str?
+    pre_down: str?
+    post_up: str?
+    post_down: str?
+    mtu: int?
+  server:
+    public_key: str
+    endpoint: str
+    allowed_ips:
+      - str
+    persistent_keep_alive: int?
+    pre_shared_key: str?
+

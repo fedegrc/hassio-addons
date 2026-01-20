@@ -28,7 +28,7 @@ To add this repository to your Home Assistant instance:
 3. Select **Repositories**
 4. Add the following URL:
    ```
-   https://gitlab.com/fedegrc/hassio-addons
+   https://github.com/fedegrc/hassio-addons
    ```
 5. The add-ons from this repository will appear in your Add-on Store
 

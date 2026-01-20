@@ -1,9 +1,9 @@
 ---
 name: WireGuard Client
-version: "0.25"
+version: "0.26"
 slug: wireguard-client
 description: Fast, modern, secure VPN tunnel (client mode)
-url: https://gitlab.com/fedegrc/hassio-addon-wireguard-client
+url: https://github.com/fedegrc/hassio-addon-wireguard-client
 arch:
   - aarch64
   - amd64

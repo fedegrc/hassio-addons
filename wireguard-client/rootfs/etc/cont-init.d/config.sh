@@ -21,11 +21,6 @@ declare pre_up
 declare server_public_key
 declare table
 
-if ! bashio::fs.directory_exists '/ssl/wireguard'; then
-    mkdir -p /ssl/wireguard ||
-        bashio::exit.nok "Could not create wireguard storage folder!"
-fi
-
 # Get interface and config file location
 interface="wg0"
 if bashio::config.has_value "client.interface"; then
@@ -157,10 +152,5 @@ fi
         && echo "PreSharedKey = ${pre_shared_key}"
     echo ""
 } >> "${config}"
-
-# Store client public key for the status API
-client_public_key=$(wg pubkey <<< "${client_private_key}")
-filename=$(sha1sum <<< "${client_public_key}" | awk '{ print $1 }')
-echo -n "client" > "/ssl/wireguard/${filename}"
 
 bashio::log.info "WireGuard client configuration created successfully"

@@ -1,0 +1,36 @@
+#!/command/with-contenv bashio
+# ==============================================================================
+# Home Assistant Community Add-on: WireGuard Client
+# Re-resolves the server endpoint when the handshake goes stale.
+# WireGuard only resolves the endpoint hostname once at startup, so a server
+# behind a dynamic IP (e.g. DuckDNS) is lost forever after its IP changes.
+# Based on wireguard-tools contrib/reresolve-dns.
+# ==============================================================================
+declare endpoint
+declare interface
+declare latest_handshake
+declare now
+declare public_key
+
+interface="wg0"
+if bashio::config.has_value "client.interface"; then
+    interface=$(bashio::config "client.interface")
+fi
+endpoint=$(bashio::config 'server.endpoint')
+public_key=$(bashio::config 'server.public_key')
+
+while true; do
+    sleep 30
+
+    latest_handshake=$(wg show "${interface}" latest-handshakes 2>/dev/null \
+        | awk -v pk="${public_key}" '$1 == pk { print $2 }')
+    [[ -z "${latest_handshake}" ]] && continue
+
+    now=$(date +%s)
+    # A rekey happens every 2 minutes; older than 135s means no recent handshake
+    if (( now - latest_handshake > 135 )); then
+        bashio::log.debug "Handshake stale, re-resolving endpoint ${endpoint}"
+        wg set "${interface}" peer "${public_key}" endpoint "${endpoint}" \
+            || bashio::log.warning "Could not re-resolve endpoint ${endpoint}"
+    fi
+done

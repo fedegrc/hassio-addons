@@ -16,6 +16,7 @@ This add-on was developed to fill a gap in the Home Assistant ecosystem, as ther
 - Connect as a client to external WireGuard servers
 - Simple configuration through Home Assistant interface
 - Automatic VPN connection management
+- Automatic reconnection when the server's dynamic IP changes (e.g. DuckDNS)
 
 For more details and installation instructions, see the documentation inside the `wireguard-client` directory.
 
@@ -23,7 +24,7 @@ For more details and installation instructions, see the documentation inside the
 
 To add this repository to your Home Assistant instance:
 
-1. Go to **Supervisor** → **Add-on Store**
+1. Go to **Settings** → **Add-ons** → **Add-on Store**
 2. Click on the three-dot menu (⋮) in the top right corner
 3. Select **Repositories**
 4. Add the following URL:

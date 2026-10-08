@@ -180,6 +180,10 @@ your client will connect to.
 
 Examples: `vpn.example.com:51820`, `203.0.113.1:51820`
 
+When a hostname is used (e.g. a DuckDNS domain), the add-on re-resolves it
+whenever no handshake has happened for more than ~2 minutes, so the tunnel
+recovers automatically if the server's public IP changes.
+
 ### Option: `server.allowed_ips` _(optional)_
 
 A list of IP addresses (IPv4 or IPv6) with CIDR masks that define which
@@ -272,5 +276,5 @@ The API returns JSON with the following structure:
 }
 ```
 
-[wireguard-logo]: wireguard-logo.svg
+[ha-rest]: https://www.home-assistant.io/integrations/rest/
 

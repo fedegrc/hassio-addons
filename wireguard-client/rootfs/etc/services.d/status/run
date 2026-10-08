@@ -1,8 +1,11 @@
 #!/command/with-contenv bashio
 # ==============================================================================
-# Home Assistant Community Add-on: WireGuard
-# Shows current WireGuard status
+# Home Assistant Community Add-on: WireGuard Client
+# Shows WireGuard status once after startup, then every hour
 # ==============================================================================
 sleep 30
-bashio::log.info "Requesting current status from WireGuard..."
-exec wg show
+while true; do
+    bashio::log.info "Requesting current status from WireGuard..."
+    wg show
+    sleep 3600
+done
